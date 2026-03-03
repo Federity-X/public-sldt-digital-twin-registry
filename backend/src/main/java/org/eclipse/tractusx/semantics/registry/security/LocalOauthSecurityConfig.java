@@ -25,7 +25,9 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.util.matcher.AnyRequestMatcher;
 
 @Profile("local")
 @Configuration
@@ -34,9 +36,14 @@ public class LocalOauthSecurityConfig {
     @Bean
     protected SecurityFilterChain configure(HttpSecurity http) throws Exception {
         return http
-                .authorizeRequests(auth -> auth
+                .authorizeHttpRequests(auth -> auth
                         .anyRequest().permitAll())
-                .csrf().disable()
-                .headers().frameOptions().disable().and().build();
+                .csrf(csrf -> csrf
+                        .ignoringRequestMatchers(AnyRequestMatcher.INSTANCE))
+                .headers(headers -> headers
+                        .frameOptions(frame -> frame.disable()))
+                .sessionManagement(session -> session
+                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .build();
     }
 }
