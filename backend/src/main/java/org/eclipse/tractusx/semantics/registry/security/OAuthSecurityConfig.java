@@ -26,9 +26,9 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.configurers.CsrfConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.util.matcher.AnyRequestMatcher;
 
 @Profile("!local")
 @Configuration
@@ -83,7 +83,8 @@ public class OAuthSecurityConfig {
                     .requestMatchers( HttpMethod.PUT, "/**/access-controls/rules/**" ).access( "@authorizationEvaluator.hasRoleWriteAccessRules()" )
                     .requestMatchers( HttpMethod.DELETE, "/**/access-controls/rules/**" ).access( "@authorizationEvaluator.hasRoleWriteAccessRules()" )
               )
-              .csrf(CsrfConfigurer::disable)
+              .csrf(csrf -> csrf
+                    .ignoringRequestMatchers(AnyRequestMatcher.INSTANCE))
               .sessionManagement(sessionManagement -> sessionManagement.sessionCreationPolicy( SessionCreationPolicy.STATELESS ) )
               .oauth2ResourceServer(oauth2ResourceServerConfigurer -> oauth2ResourceServerConfigurer.jwt() );
 
