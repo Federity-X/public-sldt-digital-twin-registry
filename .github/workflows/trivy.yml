@@ -88,18 +88,28 @@ jobs:
           load: true
           tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAMESPACE }}/sldt-digital-twin-registry:${{ github.sha }}
 
-      - name: Run Trivy vulnerability scanner
+      - name: Run Trivy vulnerability scanner (table)
         uses: aquasecurity/trivy-action@0.32.0
         with:
           image-ref: "${{ env.REGISTRY }}/${{ env.IMAGE_NAMESPACE }}/sldt-digital-twin-registry:${{ github.sha }}"
           format: "table"
-          #output: "trivy-results-registry.sarif"
-          severity: "CRITICAL,HIGH" # While vulnerabilities of all severities are reported in the SARIF output, the exit code and workflow failure are triggered only by these specified severities (CRITICAL or HIGH).
-          # ignore-unfixed: true
+          severity: "CRITICAL,HIGH"
           hide-progress: false
-          exit-code: "0" # Trivy exits with code 1 if vulnerabilities are found, causing the workflow step to fail.
+          exit-code: "0"
           vuln-type: "os,library"
-          #limit-severities-for-sarif: true
+          version: "v0.69.2"
+
+      - name: Run Trivy vulnerability scanner (SARIF)
+        uses: aquasecurity/trivy-action@0.32.0
+        with:
+          image-ref: "${{ env.REGISTRY }}/${{ env.IMAGE_NAMESPACE }}/sldt-digital-twin-registry:${{ github.sha }}"
+          format: "sarif"
+          output: "trivy-results-registry.sarif"
+          severity: "CRITICAL,HIGH"
+          hide-progress: false
+          exit-code: "0"
+          vuln-type: "os,library"
+          limit-severities-for-sarif: true
           version: "v0.69.2"
 
       - name: Upload Trivy scan results to GitHub Security tab
