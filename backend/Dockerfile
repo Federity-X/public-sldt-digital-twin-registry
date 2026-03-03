@@ -41,7 +41,7 @@ COPY backend/Dockerfile *legal /legal/
 
 COPY LICENSE NOTICE.md DEPENDENCIES SECURITY.md /legal/
 
-ENV JAVA_TOOL_OPTIONS "-Xms512m -Xmx2048m"
+ENV JAVA_TOOL_OPTIONS="-Xms512m -Xmx2048m"
 EXPOSE 4243
 
 ENTRYPOINT [ "java","-jar","/service/app.jar" ]
