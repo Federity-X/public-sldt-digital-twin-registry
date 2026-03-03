@@ -54,7 +54,7 @@ jobs:
           severity: "CRITICAL,HIGH" # While vulnerabilities of all severities are reported in the SARIF output, the exit code and workflow failure are triggered only by these specified severities (CRITICAL or HIGH).
           # ignore-unfixed: true
           hide-progress: false
-          pkg-types: "os,library"
+          vuln-type: "os,library"
           exit-code: "1" # Trivy exits with code 1 if vulnerabilities are found, causing the workflow step to fail.
           limit-severities-for-sarif: true
           version: "v0.69.2"
@@ -97,17 +97,10 @@ jobs:
           severity: "CRITICAL,HIGH" # While vulnerabilities of all severities are reported in the SARIF output, the exit code and workflow failure are triggered only by these specified severities (CRITICAL or HIGH).
           # ignore-unfixed: true
           hide-progress: false
-          exit-code: "0" # Trivy exits with code 1 if vulnerabilities are found, causing the workflow step to fail.
-          pkg-types: "os,library"
+          exit-code: "1" # Trivy exits with code 1 if vulnerabilities are found, causing the workflow step to fail.
+          vuln-type: "os,library"
           limit-severities-for-sarif: true
           version: "v0.69.2"
-
-      - name: Ensure SARIF file exists
-        if: always()
-        run: |
-          if [ ! -f trivy-results-registry.sarif ]; then
-            echo '{"version":"2.1.0","$schema":"https://json.schemastore.org/sarif-2.1.0.json","runs":[{"tool":{"driver":{"name":"Trivy","rules":[]}},"results":[]}]}' > trivy-results-registry.sarif
-          fi
 
       - name: Upload Trivy scan results to GitHub Security tab
         uses: github/codeql-action/upload-sarif@v4
