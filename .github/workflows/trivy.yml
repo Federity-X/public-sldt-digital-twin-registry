@@ -18,20 +18,20 @@
 # SPDX-License-Identifier: Apache-2.0
 ################################################################################
 
-name: Trivy
+name: "Trivy Security Scan"
 
 on:
   push:
-    branches: [main, master]
-  # pull_request:
-  # The branches below must be a subset of the branches above
-  #   branches: [main, master]
-  #   paths-ignore:
-  #     - "**/*.md"
-  #     - "**/*.txt"
+    branches: [main]
   schedule:
+    # Once a day
     - cron: "0 0 * * *"
   workflow_dispatch:
+  # Trigger manually
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAMESPACE: federity-x
 
 jobs:
   analyze-config:
@@ -43,10 +43,10 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Run Trivy vulnerability scanner in repo mode
-        uses: aquasecurity/trivy-action@0.24.0
+        uses: aquasecurity/trivy-action@0.32.0
         with:
           scan-type: "config"
           format: "sarif"
@@ -57,9 +57,10 @@ jobs:
           vuln-type: "os,library"
           exit-code: "1" # Trivy exits with code 1 if vulnerabilities are found, causing the workflow step to fail.
           limit-severities-for-sarif: true
+          version: "v0.69.2"
 
       - name: Upload Trivy scan results to GitHub Security tab
-        uses: github/codeql-action/upload-sarif@v3
+        uses: github/codeql-action/upload-sarif@v4
         if: always()
         with:
           sarif_file: "trivy-results1.sarif"
@@ -73,30 +74,46 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
-        
-      - uses: actions/setup-java@v4
+        uses: actions/checkout@v6
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build Docker image locally
+        uses: docker/build-push-action@v6
         with:
-          distribution: 'temurin'
-          java-version: '17'
-          
-      - name: Build JAR
-        run: mvn clean package
-        
-      - name: Run Trivy vulnerability scanner
-        uses: aquasecurity/trivy-action@0.24.0
+          context: .
+          file: ./backend/Dockerfile
+          push: false
+          load: true
+          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAMESPACE }}/sldt-digital-twin-registry:${{ github.sha }}
+
+      - name: Run Trivy vulnerability scanner (table)
+        uses: aquasecurity/trivy-action@0.32.0
         with:
-          image-ref: "tractusx/sldt-digital-twin-registry:latest"
+          image-ref: "${{ env.REGISTRY }}/${{ env.IMAGE_NAMESPACE }}/sldt-digital-twin-registry:${{ github.sha }}"
+          format: "table"
+          severity: "CRITICAL,HIGH"
+          hide-progress: false
+          exit-code: "0"
+          vuln-type: "os,library"
+          version: "v0.69.2"
+
+      - name: Run Trivy vulnerability scanner (SARIF)
+        uses: aquasecurity/trivy-action@0.32.0
+        with:
+          image-ref: "${{ env.REGISTRY }}/${{ env.IMAGE_NAMESPACE }}/sldt-digital-twin-registry:${{ github.sha }}"
           format: "sarif"
           output: "trivy-results-registry.sarif"
           severity: "CRITICAL,HIGH" # While vulnerabilities of all severities are reported in the SARIF output, the exit code and workflow failure are triggered only by these specified severities (CRITICAL or HIGH).
-          # ignore-unfixed: true
           hide-progress: false
-          exit-code: "1" # Trivy exits with code 1 if vulnerabilities are found, causing the workflow step to fail.
+          exit-code: "1"
           vuln-type: "os,library"
           limit-severities-for-sarif: true
+          version: "v0.69.2"
+
       - name: Upload Trivy scan results to GitHub Security tab
-        uses: github/codeql-action/upload-sarif@v3
+        uses: github/codeql-action/upload-sarif@v4
         if: always()
         with:
           sarif_file: "trivy-results-registry.sarif"

@@ -26,6 +26,9 @@ RUN mvn package -DskipTests
 
 FROM eclipse-temurin:17-jre-alpine
 
+# Upgrade gnutls and libpng to fix CVE-2026-1584 and CVE-2026-25646
+RUN apk upgrade --no-cache gnutls libpng
+
 RUN addgroup -g 101 -S spring \
     && adduser -u 100 -S spring -G spring \
     && mkdir -p /service \
@@ -41,7 +44,7 @@ COPY backend/Dockerfile *legal /legal/
 
 COPY LICENSE NOTICE.md DEPENDENCIES SECURITY.md /legal/
 
-ENV JAVA_TOOL_OPTIONS "-Xms512m -Xmx2048m"
+ENV JAVA_TOOL_OPTIONS="-Xms512m -Xmx2048m"
 EXPOSE 4243
 
 ENTRYPOINT [ "java","-jar","/service/app.jar" ]
