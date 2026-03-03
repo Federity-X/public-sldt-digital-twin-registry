@@ -105,9 +105,9 @@ jobs:
           image-ref: "${{ env.REGISTRY }}/${{ env.IMAGE_NAMESPACE }}/sldt-digital-twin-registry:${{ github.sha }}"
           format: "sarif"
           output: "trivy-results-registry.sarif"
-          severity: "CRITICAL,HIGH"
+          severity: "CRITICAL,HIGH" # While vulnerabilities of all severities are reported in the SARIF output, the exit code and workflow failure are triggered only by these specified severities (CRITICAL or HIGH).
           hide-progress: false
-          exit-code: "0"
+          exit-code: "1"
           vuln-type: "os,library"
           limit-severities-for-sarif: true
           version: "v0.69.2"

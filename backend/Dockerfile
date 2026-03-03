@@ -26,6 +26,9 @@ RUN mvn package -DskipTests
 
 FROM eclipse-temurin:17-jre-alpine
 
+# Upgrade gnutls and libpng to fix CVE-2026-1584 and CVE-2026-25646
+RUN apk upgrade --no-cache gnutls libpng
+
 RUN addgroup -g 101 -S spring \
     && adduser -u 100 -S spring -G spring \
     && mkdir -p /service \
