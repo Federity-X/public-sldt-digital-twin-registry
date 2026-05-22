@@ -1,0 +1,13 @@
+# CVE-2026-32767 — libexpat CRITICAL
+# Package:           libexpat
+# Installed version: 2.7.4-r0 (shipped in eclipse-temurin:17-jre-alpine base image)
+# Fixed version:     2.7.5-r0
+#
+# Status: libexpat 2.7.5-r0 is not yet available in the Alpine package repository
+# for the Alpine version bundled with eclipse-temurin:17-jre-alpine.
+# The Dockerfile already contains:
+#   RUN apk upgrade --no-cache ... libexpat
+# which will automatically apply the fix the moment 2.7.5-r0 lands in the repo.
+#
+# Remove this entry once the base image ships libexpat >= 2.7.5-r0.
+CVE-2026-32767
