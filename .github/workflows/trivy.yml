@@ -57,6 +57,7 @@ jobs:
           vuln-type: "os,library"
           exit-code: "1" # Trivy exits with code 1 if vulnerabilities are found, causing the workflow step to fail.
           limit-severities-for-sarif: true
+          trivyignores: ".trivyignore"
           version: "v0.69.2"
 
       - name: Upload Trivy scan results to GitHub Security tab
@@ -97,6 +98,7 @@ jobs:
           hide-progress: false
           exit-code: "0"
           vuln-type: "os,library"
+          trivyignores: ".trivyignore"
           version: "v0.69.2"
 
       - name: Run Trivy vulnerability scanner (SARIF)
@@ -110,6 +112,7 @@ jobs:
           exit-code: "1"
           vuln-type: "os,library"
           limit-severities-for-sarif: true
+          trivyignores: ".trivyignore"
           version: "v0.69.2"
 
       - name: Upload Trivy scan results to GitHub Security tab
